@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -13,30 +18,44 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = request.headers.authorization;
     if (!token) {
-      return false; // No token, deny access
+      throw new UnauthorizedException(
+        'please provide a valid token in the authorization header',
+      );
     }
-
     try {
-      // Verify and decode the token
-      const decoded = this.jwtService.verify(token);
-
-      // Check if the user exists in the database
+      const tokenWithoutBearer = token.replace('Bearer ', '');
+      const decoded = this.jwtService.verify(tokenWithoutBearer);
       const user = await this.prisma.user.findUnique({
         where: {
           id: (await decoded).sub,
         },
       });
-
       if (!user) {
-        return false; // User not found in the database, deny access
+        throw new UnauthorizedException(
+          'this token does not match any user in the database',
+        );
       }
-
-      // Attach the user object to the request for further use
       request.user = user;
-
-      return true; // User has a valid token and exists in the database, allow access
+      return true;
     } catch (error) {
-      return false; // Token is invalid, deny access
+      throw new UnauthorizedException('this token is not valid or has expired');
     }
+  }
+}
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  canActivate(context: ExecutionContext): boolean {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    console.log(user);
+    // Check if the user has the 'admin' role
+    if (user && user.isAdmin) {
+      return true; // User has the 'admin' role, allow access
+    }
+
+    throw new UnauthorizedException(
+      'Only admin users are allowed to perform this action',
+    );
   }
 }

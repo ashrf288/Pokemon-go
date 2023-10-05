@@ -2,13 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as XLSX from 'xlsx';
 import * as fs from 'fs';
-import { PokemonDto, PokemonListDto } from './dto/pokemon.dto';
+import { PokemonDto } from './dto/pokemon.dto';
+import { PaginationDto } from '../dto/pagination.dto';
 @Injectable()
 export class PokemonService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(): Promise<PokemonListDto[]> {
+  async findAll(paginationDto: PaginationDto) {
+    const { page, pageSize } = paginationDto;
+
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
     const pokemonList = await this.prisma.pokemon.findMany({
+      take,
+      skip,
       select: {
         id: true,
         name: true,
@@ -17,7 +24,11 @@ export class PokemonService {
         evolutionStage: true,
       },
     });
-    return pokemonList;
+    return {
+      page,
+      pageSize,
+      data: pokemonList,
+    };
   }
 
   async findOne(id: number): Promise<PokemonDto> {

@@ -24,30 +24,30 @@ model Pokemon {
   id             Int      @id
   name           String
   img            String
-  generation     String
-  evolutionStage String
-  evolved        Boolean
-  familyId       Int
-  crossGen       Boolean
-  type1          String
-  type2          String
-  weather1       String
-  weather2       String
-  statTotal      Int
+  generation     Int?
+  evolutionStage String?
+  evolved        Int
+  familyId       Int?
+  crossGen       Int
+  type1          String?
+  type2          String?
+  weather1       String?
+  weather2       String?
+  statTotal      Int?
   atk            Int
   def            Int
   sta            Int
-  legendary      Boolean
-  aquireable     Boolean
-  spawns         Boolean
-  regional       Boolean
+  legendary      Int
+  aquireable     Int
+  spawns         Int
+  regional       Int
   raidable       Int
   hatchable      Int
-  shiny          Boolean
-  nest           Boolean
-  new            Boolean
-  notGettable    Boolean
-  futureEvolve   Boolean
+  shiny          Int
+  nest           Int
+  new            Int
+  notGettable    Int
+  futureEvolve   Int
   cp40           Int
   cp39           Int
   createdAt      DateTime @default(now())

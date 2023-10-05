@@ -41,6 +41,9 @@ export class PokemonListDto {
 }
 
 export class PokemonUpdateCreateDto {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
   name: string;
   img: string;
   generation: number;

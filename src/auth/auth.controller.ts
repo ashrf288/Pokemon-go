@@ -16,3 +16,5 @@ export class AuthController {
     return this.authService.signin(dto);
   }
 }
+
+export { AuthService };

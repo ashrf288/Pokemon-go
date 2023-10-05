@@ -6,6 +6,8 @@ export class AuthDto {
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(8) // You can adjust the minimum length as needed
+  @MinLength(8)
   password: string;
+
+  name?: string;
 }

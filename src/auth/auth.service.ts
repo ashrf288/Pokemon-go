@@ -57,4 +57,18 @@ export class AuthService {
       access_token: token,
     };
   }
+
+  async verify(token: string): Promise<{ sub: number }> {
+    const secret = this.config.get('JWT_SECRET');
+
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, secret, (error, decoded) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(decoded as { sub: number });
+        }
+      });
+    });
+  }
 }

@@ -4,13 +4,21 @@ import * as XLSX from 'xlsx';
 import * as fs from 'fs';
 import { PokemonDto } from './dto/pokemon.dto';
 import { PaginationDto } from '../dto/pagination.dto';
+import { PokemonUpdateCreateDto } from './dto';
+import { FilteringService } from './filtering.service';
+
 @Injectable()
 export class PokemonService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private filter: FilteringService,
+  ) {}
 
   async findAll(paginationDto: PaginationDto) {
     const { page, pageSize } = paginationDto;
-
+    const { query } = await this.filter.filterPokemons(paginationDto);
+    console.log(query);
+    const where = query;
     const skip = (page - 1) * pageSize;
     const take = pageSize;
     const pokemonList = await this.prisma.pokemon.findMany({
@@ -23,6 +31,7 @@ export class PokemonService {
         generation: true,
         evolutionStage: true,
       },
+      where,
     });
     return {
       page,
@@ -39,17 +48,17 @@ export class PokemonService {
     });
   }
 
-  async create(dto: any) {
-    return await this.prisma.pokemon.create({
-      data: dto,
-    });
-  }
-
-  async update(id: number, dto: any) {
+  async update(id: number, dto: PokemonUpdateCreateDto) {
     return await this.prisma.pokemon.update({
       where: {
         id,
       },
+      data: dto,
+    });
+  }
+
+  async add(dto: PokemonDto) {
+    return await this.prisma.pokemon.create({
       data: dto,
     });
   }
@@ -77,7 +86,6 @@ export class PokemonService {
 
       // loop through the data and create a new object for each row
       const data = xlData.map((row) => ({
-        id: row['Pokedex Number'],
         name: row['Name'],
         img: row['Img name'].toString(),
         generation: row['Generation'],

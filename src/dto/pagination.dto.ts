@@ -1,4 +1,4 @@
-import { IsInt, IsPositive, IsOptional } from 'class-validator';
+import { IsInt, IsPositive, IsOptional, IsString } from 'class-validator';
 
 export class PaginationDto {
   @IsOptional()
@@ -10,4 +10,16 @@ export class PaginationDto {
   @IsInt()
   @IsPositive()
   pageSize: number = 10;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  generation?: number;
+
+  @IsOptional()
+  @IsString()
+  evolutionStage?: string;
 }

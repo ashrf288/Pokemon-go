@@ -44,10 +44,10 @@ export class PokemonController {
     return this.pokemonService.findAll(paginationDto);
   }
 
-  // @Get('upload')
-  // upload() {
-  //   return this.pokemonService.readExcelFile('../Pokemon Go.xlsx');
-  // }
+  @Get('upload')
+  upload() {
+    return this.pokemonService.readExcelFile('../Pokemon Go.xlsx');
+  }
 
   // get pokemon by id
   @Get(':id')

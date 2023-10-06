@@ -4,7 +4,7 @@ import { AuthService } from '../auth/auth.controller';
 import { AuthDto } from '../auth/dto/auth.dto';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard, RolesGuard } from '../auth/auth.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { PokemonController } from './pokemon.controller';
 import { PokemonService } from './pokemon.service';
@@ -13,6 +13,7 @@ import { PaginationDto } from '../dto/pagination.dto';
 import { PokemonUpdateCreateDto } from './dto/pokemon.dto';
 import { PokemonDto } from './dto';
 import { PokemonModule } from './pokemon.module';
+import { ExecutionContext } from '@nestjs/common';
 
 describe('pokemon app test', () => {
   let authController: AuthController;
@@ -20,6 +21,8 @@ describe('pokemon app test', () => {
   let pokemonController: PokemonController;
   let pokemonService: PokemonService;
   let filteringService: FilteringService;
+  let authGuard: AuthGuard;
+  let rolesGuard: RolesGuard;
   let user_token = '';
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,6 +30,7 @@ describe('pokemon app test', () => {
       controllers: [PokemonController, AuthController],
       providers: [
         AuthGuard,
+        RolesGuard,
         PrismaService,
         AuthService,
         PokemonService,
@@ -38,6 +42,8 @@ describe('pokemon app test', () => {
     pokemonController = module.get<PokemonController>(PokemonController);
     pokemonService = module.get<PokemonService>(PokemonService);
     filteringService = module.get<FilteringService>(FilteringService);
+    authGuard = module.get<AuthGuard>(AuthGuard);
+    rolesGuard = module.get<RolesGuard>(RolesGuard);
     const authDto: AuthDto = {
       email: 'test@test.com',
       password: '12345678',
@@ -263,5 +269,62 @@ describe('pokemon app test', () => {
       const pokemonModule = new PokemonModule();
       expect(pokemonModule).toBeDefined();
     });
+  });
+
+  it('test pokemon upload contoller', async () => {
+    const result = await pokemonController.upload();
+    expect(result).toEqual({ message: ' upload successfully' });
+  });
+
+  
+
+  it('test AuthGuard with invalid token', async () => {
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => ({
+          headers: {
+            authorization: `Bearer ${user_token}1`,
+          },
+        }),
+      }),
+    };
+    try {
+      await authGuard.canActivate(context as ExecutionContext);
+    } catch (error) {
+      expect(error.message).toEqual('this token is not valid or has expired');
+    }
+  });
+
+  it('test AuthGuard with no token', async () => {
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => ({
+          headers: {},
+        }),
+      }),
+    };
+    try {
+      await authGuard.canActivate(context as ExecutionContext);
+    } catch (error) {
+      expect(error.message).toEqual(
+        'please provide a valid token in the authorization header',
+      );
+    }
+  });
+  it('test RolesGuard', async () => {
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => ({
+          headers: {},
+        }),
+      }),
+    };
+    try {
+      await rolesGuard.canActivate(context as ExecutionContext);
+    } catch (error) {
+      expect(error.message).toEqual(
+        'Only admin users are allowed to perform this action',
+      );
+    }
   });
 });

@@ -2,6 +2,8 @@ import {
   Injectable,
   ForbiddenException,
   OnApplicationBootstrap,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -63,7 +65,10 @@ export class AuthService implements OnApplicationBootstrap {
         isAdmin: user.isAdmin,
       };
     } catch (err) {
-      throw new ForbiddenException('this Email already exists');
+      throw new HttpException(
+        'this email is already in use',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // if email already exists throw exception
@@ -143,14 +148,31 @@ export class AuthService implements OnApplicationBootstrap {
     dto: ChangePasswordDto,
   ): Promise<UserDetailsDto> {
     const id = await this.getUserId(token);
-    const password = await argon.hash(dto.password);
-
-    const user = await this.prisma.user.update({
+    if (dto.new_password == dto.old_password) {
+      throw new HttpException(
+        'you provided the same password',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    // check if old password matches the one in the db
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    const pwMatches = await argon.verify(user.password, dto.old_password);
+    if (!pwMatches)
+      throw new HttpException(
+        'old password does not match',
+        HttpStatus.BAD_REQUEST,
+      );
+    const new_password = await argon.hash(dto.new_password);
+    await this.prisma.user.update({
       where: {
         id,
       },
       data: {
-        password,
+        password: new_password,
       },
     });
 
@@ -197,71 +219,3 @@ export class AuthService implements OnApplicationBootstrap {
     return sub;
   }
 }
-
-// test logic for auth.service.ts
-
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { AuthService } from './auth.service';
-// import { AuthDto } from './dto';
-// import { ConfigModule } from '@nestjs/config';
-// import { PrismaModule } from '../prisma/prisma.module';
-// import * as argon from 'argon2';
-// import * as jwt from 'jsonwebtoken';
-
-// describe('AuthService', () => {
-//   let service: AuthService;
-//   let user: AuthDto;
-//   let token: string;
-//   let userId: number;
-//   let secret: string;
-
-//   beforeAll(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       imports: [ConfigModule.forRoot(), PrismaModule],
-//       providers: [AuthService],
-//     }).compile();
-//     service = module.get<AuthService>(AuthService);
-//     user = {
-//       email: 'test@test',
-//       password: '12345678',
-//       name: 'test',
-//     };
-//     const { access_token } = await service.signup(user);
-//     token = access_token;
-//     const { sub } = await service.verify(token);
-//     userId = sub;
-//     secret = service.secret;
-//   });
-
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-
-//   it('should create a new user', async () => {
-//     const { access_token } = await service.signup(user);
-//     expect(access_token).toBeDefined();
-//   });
-
-//   it('should sign a user in', async () => {
-//     const { access_token } = await service.signin(user);
-//     expect(access_token).toBeDefined();
-//   });
-
-//   it('should return a user', async () => {
-//     const user = await service.user(token);
-//     expect(user).toBeDefined();
-//     expect(user.id).toEqual(userId);
-//   });
-
-//   it('should delete a user', async () => {
-//     const message = await service.delete(token);
-//     expect(message).toBeDefined();
-//     expect(message).toEqual(`User ${user.name} has been deleted`);
-//   });
-
-//   it('should update a user', async () => {
-//     const updatedUser = await service.update(token, {
-//       email: 'test@test',
-//       name: 'test',
-//     });
-//     expect(updatedUser).toBeDefined

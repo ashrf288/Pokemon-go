@@ -42,7 +42,7 @@ This is a simple pokemon go api that allows you to create a user, login, and add
 
 ## postman collection
 
-+ [postman collection](https://dark-flare-638246.postman.co/workspace/pokemons~8f9a4834-b48b-4905-a448-81f878dbefbb/overview)
++ [postman collection](https://www.postman.com/dark-flare-638246/workspace/pokemon-go)
 
 **note** go to the environment and set the URL variable to `http://localhost:8080/api/v1`
 

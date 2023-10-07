@@ -276,8 +276,6 @@ describe('pokemon app test', () => {
     expect(result).toEqual({ message: ' upload successfully' });
   });
 
-  
-
   it('test AuthGuard with invalid token', async () => {
     const context = {
       switchToHttp: () => ({

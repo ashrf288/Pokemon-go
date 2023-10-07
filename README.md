@@ -28,13 +28,16 @@ This is a simple pokemon go api that allows you to create a user, login, and add
 ## seeded data 
 
 + there is a user with the email `admin@admin.com` and password `admin1234` that is an admin user
-+ there is about 800 pokemon in the database
+
++ there is about 800 pokemon in the database (same as in the excel sheet provided)
 
 
 
 ## tests and test coverage 
 
 + to run the tests you cna run this command `docker-compose exec app sh` then `npm run test:cov`
+
+![test coverage](cov_test.png)
 
 
 ## postman collection
@@ -63,7 +66,7 @@ the token will be assigned to the `token` variable in the environment automatica
     + response: { token: string }
 
 ### pokemon routes
-**note** you will need to create a user and login to get a TOKEN to use the other routes
+**note** you should be authenticated to view the pokemon routes but only admin users can add, update, and delete pokemon
 
 + GET /pokemon
     + response: { pokemon: Pokemon[] }

@@ -1,4 +1,5 @@
-import { IsString } from 'class-validator';
+import { IsString, IsOptional, IsInt } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class PokemonDto {
   @IsString()
@@ -72,4 +73,24 @@ export class PokemonUpdateCreateDto {
   futureEvolve: number;
   cp40: number;
   cp39: number;
+}
+
+export class PokemonQueryDto {
+  @IsOptional()
+  @Transform(({ value }) => {
+    console.log('value', value);
+    return parseInt(value, 10);
+  })
+  @IsInt()
+  page: number;
+
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  pageSize: number;
+
+  name: string;
+  @Transform(({ value }) => parseInt(value, 10))
+  generation: number;
+  evolutionStage: string;
 }

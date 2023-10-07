@@ -3,9 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as XLSX from 'xlsx';
 import * as fs from 'fs';
 import { PokemonDto } from './dto/pokemon.dto';
-import { PaginationDto } from '../dto/pagination.dto';
 import { PokemonUpdateCreateDto } from './dto';
 import { FilteringService } from './filtering.service';
+import { PokemonQueryDto } from './dto/pokemon.dto';
 
 @Injectable()
 export class PokemonService implements OnApplicationBootstrap {
@@ -19,8 +19,16 @@ export class PokemonService implements OnApplicationBootstrap {
     await this.readExcelFile('./Pokemon Go.xlsx');
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const { page, pageSize } = paginationDto;
+  async findAll(paginationDto: PokemonQueryDto) {
+    let { page, pageSize } = paginationDto;
+    page = page ? parseInt(page.toString(), 10) : 1;
+    pageSize = pageSize ? parseInt(pageSize.toString(), 10) : 10;
+    if (paginationDto.generation) {
+      paginationDto.generation = parseInt(
+        paginationDto.generation.toString(),
+        10,
+      );
+    }
     const { query } = await this.filter.filterPokemons(paginationDto);
     const where = query;
     const skip = (page - 1) * pageSize;

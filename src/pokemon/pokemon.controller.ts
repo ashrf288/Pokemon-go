@@ -11,37 +11,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PokemonService } from './pokemon.service';
-import { PaginationDto } from '../dto/pagination.dto';
 import { PokemonUpdateCreateDto } from './dto';
 import { AuthGuard, RolesGuard } from '../auth/auth.guard';
+import { PokemonQueryDto } from './dto/pokemon.dto';
 
-@Controller('pokemons')
+@Controller('api/v1/pokemons')
 @UseGuards(AuthGuard)
 export class PokemonController {
   constructor(private pokemonService: PokemonService) {}
   @Get()
-  async findAll(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('pageSize', ParseIntPipe) pageSize: number,
-    @Query('name') name: string,
-    @Query('generation', ParseIntPipe) generation: number,
-    @Query('evolutionStage') evolutionStage: string,
-  ) {
-    if (page === undefined) {
-      page = 1; // Set default value
-    }
-
-    if (pageSize === undefined) {
-      pageSize = 10; // Set default value
-    }
-    const paginationDto: PaginationDto = {
-      page,
-      pageSize,
-      name,
-      generation,
-      evolutionStage,
-    };
-    return this.pokemonService.findAll(paginationDto);
+  async findAll(@Query() queryDto: PokemonQueryDto) {
+    return this.pokemonService.findAll(queryDto);
   }
 
   @Get('upload')

@@ -77,6 +77,7 @@ export class AuthService implements OnApplicationBootstrap {
       },
     });
     // if user does not exist throw exception
+    if (!user) throw new ForbiddenException('Credentials incorrect');
 
     // compare password
     const pwMatches = await argon.verify(user.password, dto.password);
@@ -196,3 +197,71 @@ export class AuthService implements OnApplicationBootstrap {
     return sub;
   }
 }
+
+// test logic for auth.service.ts
+
+// import { Test, TestingModule } from '@nestjs/testing';
+// import { AuthService } from './auth.service';
+// import { AuthDto } from './dto';
+// import { ConfigModule } from '@nestjs/config';
+// import { PrismaModule } from '../prisma/prisma.module';
+// import * as argon from 'argon2';
+// import * as jwt from 'jsonwebtoken';
+
+// describe('AuthService', () => {
+//   let service: AuthService;
+//   let user: AuthDto;
+//   let token: string;
+//   let userId: number;
+//   let secret: string;
+
+//   beforeAll(async () => {
+//     const module: TestingModule = await Test.createTestingModule({
+//       imports: [ConfigModule.forRoot(), PrismaModule],
+//       providers: [AuthService],
+//     }).compile();
+//     service = module.get<AuthService>(AuthService);
+//     user = {
+//       email: 'test@test',
+//       password: '12345678',
+//       name: 'test',
+//     };
+//     const { access_token } = await service.signup(user);
+//     token = access_token;
+//     const { sub } = await service.verify(token);
+//     userId = sub;
+//     secret = service.secret;
+//   });
+
+//   it('should be defined', () => {
+//     expect(service).toBeDefined();
+//   });
+
+//   it('should create a new user', async () => {
+//     const { access_token } = await service.signup(user);
+//     expect(access_token).toBeDefined();
+//   });
+
+//   it('should sign a user in', async () => {
+//     const { access_token } = await service.signin(user);
+//     expect(access_token).toBeDefined();
+//   });
+
+//   it('should return a user', async () => {
+//     const user = await service.user(token);
+//     expect(user).toBeDefined();
+//     expect(user.id).toEqual(userId);
+//   });
+
+//   it('should delete a user', async () => {
+//     const message = await service.delete(token);
+//     expect(message).toBeDefined();
+//     expect(message).toEqual(`User ${user.name} has been deleted`);
+//   });
+
+//   it('should update a user', async () => {
+//     const updatedUser = await service.update(token, {
+//       email: 'test@test',
+//       name: 'test',
+//     });
+//     expect(updatedUser).toBeDefined

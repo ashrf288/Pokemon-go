@@ -9,7 +9,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PokemonController } from './pokemon.controller';
 import { PokemonService } from './pokemon.service';
 import { FilteringService } from './filtering.service';
-import { PaginationDto } from '../dto/pagination.dto';
+import { PokemonQueryDto } from './dto/pokemon.dto';
 import { PokemonUpdateCreateDto } from './dto/pokemon.dto';
 import { PokemonDto } from './dto';
 import { PokemonModule } from './pokemon.module';
@@ -83,14 +83,16 @@ describe('pokemon app test', () => {
         page: 1,
         pageSize: 10,
         data: [
-          { id: 1, name: 'test', img: '', generation: 1, evolutionStage: '' },
+          { id: 1, name: 'Met', img: '', generation: 1, evolutionStage: '' },
         ],
       });
 
-      const result = await pokemonController.findAll(1, 10, '', 1, '');
+      const query = new PokemonQueryDto();
+
+      const result = await pokemonController.findAll(query);
       expect(result).toEqual({
         data: [
-          { evolutionStage: '', generation: 1, id: 1, img: '', name: 'test' },
+          { evolutionStage: '', generation: 1, id: 1, img: '', name: 'Met' },
         ],
         page: 1,
         pageSize: 10,
@@ -250,14 +252,14 @@ describe('pokemon app test', () => {
       const result = await filteringService.filterPokemons(filters);
       expect(result).toEqual(expected_query);
     });
-    it('test paginationDto', async () => {
-      const paginationDto = new PaginationDto();
-      paginationDto.page = 1;
-      paginationDto.pageSize = 10;
-      paginationDto.name = '';
-      paginationDto.generation = 1;
-      paginationDto.evolutionStage = '';
-      expect(paginationDto).toEqual({
+    it('test PokemonQueryDto', async () => {
+      const pokemonQueryDto = new PokemonQueryDto();
+      pokemonQueryDto.page = 1;
+      pokemonQueryDto.pageSize = 10;
+      pokemonQueryDto.name = '';
+      pokemonQueryDto.generation = 1;
+      pokemonQueryDto.evolutionStage = '';
+      expect(pokemonQueryDto).toEqual({
         page: 1,
         pageSize: 10,
         name: '',

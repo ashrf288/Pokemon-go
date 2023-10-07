@@ -1,73 +1,110 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# pokemon go 
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+This is a simple pokemon go api that allows you to create a user, login, and add pokemon to your collection.
 
-## Installation
 
-```bash
-$ npm install
-```
+## tools and technologies used
 
-## Running the app
++ [nodejs](https://nodejs.org/en/)
++ [typescript](https://www.typescriptlang.org/)
++ [express](https://expressjs.com/)
++ [nestjs](https://nestjs.com/)
++ [prisma](https://www.prisma.io/)
++ [postgres](https://www.postgresql.org/)
++ [docker](https://www.docker.com/)
++ [jest](https://jestjs.io/) 
 
-```bash
-# development
-$ npm run start
 
-# watch mode
-$ npm run start:dev
 
-# production mode
-$ npm run start:prod
-```
+## setup
 
-## Test
+1. Clone this repo
 
-```bash
-# unit tests
-$ npm run test
+2. run `docker-compose up` in the root directory
 
-# e2e tests
-$ npm run test:e2e
 
-# test coverage
-$ npm run test:cov
-```
+## seeded data 
 
-## Support
++ there is a user with the email `admin@admin.com` and password `admin1234` that is an admin user
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
++ there is about 800 pokemon in the database (same as in the excel sheet provided)
 
-## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
+## tests and test coverage 
 
-Nest is [MIT licensed](LICENSE).
++ to run the tests you cna run this command `docker-compose exec app sh` then `npm run test:cov`
+
+![test coverage](cov_test.png)
+
+
+## postman collection
+
++ [postman collection](https://www.postman.com/dark-flare-638246/workspace/pokemon-go)
+
+**note** go to the environment and set the URL variable to `http://localhost:8080/api/v1`
+
+![postman environment](postman_env.png)
+
+**note** you will need to create a user and login to get a TOKEN to use the other routes
+
+the token will be assigned to the `token` variable in the environment automatically when you login
+
+
+## routes
+
+### auth routes
+
++ POST /auth/signup 
+    + body: { username: string, password: string }
+    + response: { token: string }
+
++ POST /auth/login
+    + body: { username: string, password: string }
+    + response: { token: string }
+
+### pokemon routes
+**note** you should be authenticated to view the pokemon routes but only admin users can add, update, and delete pokemon
+
++ GET /pokemon
+    + response: { pokemon: Pokemon[] }
+
++ POST /pokemon/add
+    + body: { name: string, type: string }
+    + response: { pokemon: Pokemon }
+
++ GET /pokemon/:id
+    + response: { pokemon: Pokemon }
+
+**note** these rest of the endpoints  require you to be logged in as an admin user to use them
+
++ DELETE /pokemon/:id   (admin only)
+    + response: { pokemon: Pokemon }
+
++ PUT /pokemon/:id  (admin only)
+    + body: { name: string, type: string }
+    + response: { pokemon: Pokemon }
+
+
+### user routes
+**note** you will need to create a user and login to get a TOKEN to use  them 
+
++ GET /user
+    + response: { user: User }
+
++ PATCH /user
+    + body: { name: string, email: string }
+    + response: { user: User }
+
++ DELETE /user
+    + response: { user: User }
+
+
++ PATCH /user/change-password
+    + body: { password: string }
+    + response: { user: User }
+
+
+

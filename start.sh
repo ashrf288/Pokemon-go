@@ -9,6 +9,8 @@ if [ $? -eq 0 ]; then
   
   # Start your application if the migration was successful
   npm run start:dev
+  # create admin user
+  npm run seed
 else
   echo "Migration failed!"
   exit 1

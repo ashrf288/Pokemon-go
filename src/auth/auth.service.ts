@@ -1,16 +1,44 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthDto, UserDetailsDto, UpdateUserDto } from './dto';
+import {
+  AuthDto,
+  UserDetailsDto,
+  UpdateUserDto,
+  ChangePasswordDto,
+} from './dto';
 import { ConfigService } from '@nestjs/config';
 import * as argon from 'argon2'; // Import the argon2 library
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnApplicationBootstrap {
   constructor(
     private prisma: PrismaService,
     private config: ConfigService,
   ) {}
+  // create  admin user on app start
+  async onApplicationBootstrap() {
+    const admin = await this.prisma.user.findUnique({
+      where: {
+        email: 'admin@admin.com',
+      },
+    });
+    if (!admin) {
+      const password = await argon.hash('admin1234');
+      await this.prisma.user.create({
+        data: {
+          email: 'admin@admin.com',
+          password,
+          name: 'admin',
+          isAdmin: true,
+        },
+      });
+    }
+  }
 
   async signup(dto: AuthDto): Promise<UserDetailsDto> {
     // generate the password hash
@@ -109,7 +137,10 @@ export class AuthService {
     };
   }
 
-  async changePassword(token: string, dto: AuthDto): Promise<UserDetailsDto> {
+  async changePassword(
+    token: string,
+    dto: ChangePasswordDto,
+  ): Promise<UserDetailsDto> {
     const id = await this.getUserId(token);
     const password = await argon.hash(dto.password);
 

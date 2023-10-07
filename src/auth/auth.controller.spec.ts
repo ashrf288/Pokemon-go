@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
+import { AuthDto, UserDetailsDto, UpdateUserDto } from './dto';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../prisma/prisma.module';
 
@@ -61,5 +61,53 @@ describe('AuthController', () => {
 
       expect(result).toHaveProperty('access_token');
     });
+  });
+  it('should return the user details', async () => {
+    const expectedUser: UserDetailsDto = {
+      id: 1,
+      email: 'test@test.com',
+      name: 'test',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isAdmin: false,
+    };
+    jest.spyOn(authService, 'user').mockResolvedValue(expectedUser);
+    const result = await authController.user('mockedToken');
+    expect(result).toBe(expectedUser);
+  });
+
+  it('should update the user and return the updated user', async () => {
+    const updateUserDto: UpdateUserDto = {
+      email: 'test1@test.com',
+      name: 'test',
+    };
+    const expectedUser: UserDetailsDto = {
+      id: 1,
+      email: 'test1@test.com',
+      name: 'test',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isAdmin: false,
+    };
+    jest.spyOn(authService, 'update').mockResolvedValue(expectedUser);
+    const result = await authController.updateUser(
+      'mockedToken',
+      updateUserDto,
+    );
+    expect(result).toBe(expectedUser);
+  });
+
+  it('should delete the user and return a message', async () => {
+    const expectedMessage = 'User test has been deleted';
+    jest.spyOn(authService, 'delete').mockResolvedValue(expectedMessage);
+    const result = await authController.deleteUser('mockedToken');
+    expect(result).toBe(expectedMessage);
+  });
+
+  it('test getUserId', async () => {
+    const expectedId = 1;
+    jest.spyOn(authService, 'getUserId').mockResolvedValue(expectedId);
+    const result = await authService.getUserId('mockedToken');
+    expect(result).toBe(expectedId);
   });
 });

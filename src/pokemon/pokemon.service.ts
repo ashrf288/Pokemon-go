@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as XLSX from 'xlsx';
 import * as fs from 'fs';
@@ -8,11 +8,16 @@ import { PokemonUpdateCreateDto } from './dto';
 import { FilteringService } from './filtering.service';
 
 @Injectable()
-export class PokemonService {
+export class PokemonService implements OnApplicationBootstrap {
   constructor(
     private prisma: PrismaService,
     private filter: FilteringService,
   ) {}
+
+  // call the upload function on app start
+  async onApplicationBootstrap() {
+    await this.readExcelFile('./Pokemon Go.xlsx');
+  }
 
   async findAll(paginationDto: PaginationDto) {
     const { page, pageSize } = paginationDto;

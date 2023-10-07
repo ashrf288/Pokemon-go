@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto, UpdateUserDto } from './dto';
+import { AuthDto, UpdateUserDto, ChangePasswordDto } from './dto';
 import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
@@ -40,6 +40,11 @@ export class AuthController {
   @UseGuards(AuthGuard)
   deleteUser(@Headers() headers: any) {
     return this.authService.delete(headers.authorization);
+  }
+
+  @Patch('user/change-password')
+  changePassword(@Headers() headers: any, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(headers.authorization, dto);
   }
 }
 

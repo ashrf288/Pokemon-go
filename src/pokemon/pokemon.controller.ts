@@ -46,7 +46,7 @@ export class PokemonController {
 
   @Get('upload')
   upload() {
-    return this.pokemonService.readExcelFile('../Pokemon Go.xlsx');
+    return this.pokemonService.readExcelFile('./Pokemon Go.xlsx');
   }
 
   // get pokemon by id

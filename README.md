@@ -68,22 +68,33 @@ the token will be assigned to the `token` variable in the environment automatica
 ### pokemon routes
 **note** you should be authenticated to view the pokemon routes but only admin users can add, update, and delete pokemon
 
-+ GET /pokemon
++ GET /pokemons
     + response: { pokemon: Pokemon[] }
+    
+**this endpoint will get all the pokemon in the database and its paginated it takes 5 params**
 
-+ POST /pokemon/add
+
+    + page: number => the page number you want to get
+    + pageSize: number => the number of pokemon you want to get per page
+    + filters :
+        + name: string => the name of the pokemon you want to filter by (string)
+        + generation: number => the generation of the pokemon you want to filter by (number)
+        + evolutionStage: string => the evolution stage of the pokemon you want to filter by (string)
+
+
++ POST /pokemons/add
     + body: { name: string, type: string }
     + response: { pokemon: Pokemon }
 
-+ GET /pokemon/:id
++ GET /pokemons/:id
     + response: { pokemon: Pokemon }
 
 **note** these rest of the endpoints  require you to be logged in as an admin user to use them
 
-+ DELETE /pokemon/:id   (admin only)
++ DELETE /pokemons/:id   (admin only)
     + response: { pokemon: Pokemon }
 
-+ PUT /pokemon/:id  (admin only)
++ PUT /pokemons/:id  (admin only)
     + body: { name: string, type: string }
     + response: { pokemon: Pokemon }
 
